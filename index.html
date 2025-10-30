@@ -299,53 +299,142 @@
             showScreen('loginScreen');
             showAlert('loginAlert', '👋 Sesión cerrada correctamente', 'success');
         }
+// Guardar registro - CONEXIÓN CON GOOGLE SHEETS
+async function guardarRegistro() {
+    if (!usuarioActual) {
+        showAlert('formAlert', 'Debe iniciar sesión primero', 'error');
+        return;
+    }
 
-        // Guardar registro
-        async function guardarRegistro() {
-            if (!usuarioActual) {
-                showAlert('formAlert', 'Debe iniciar sesión primero', 'error');
-                return;
-            }
+    const cliente = document.getElementById('cliente').value;
+    const telefono = document.getElementById('telefono').value;
+    const objecion = document.getElementById('objecion').value;
 
-            const cliente = document.getElementById('cliente').value;
-            const telefono = document.getElementById('telefono').value;
-            const objecion = document.getElementById('objecion').value;
+    if (!cliente || !telefono) {
+        showAlert('formAlert', '❌ Cliente y Teléfono son obligatorios', 'error');
+        return;
+    }
 
-            if (!cliente || !telefono) {
-                showAlert('formAlert', '❌ Cliente y Teléfono son obligatorios', 'error');
-                return;
-            }
+    try {
+        // MOSTRAR MENSAJE DE ESPERA
+        showAlert('formAlert', '⏳ Guardando en Google Sheets...', 'success');
 
-            try {
-                // Simular guardado
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                const registro = {
-                    id: 'REG' + Date.now().toString().slice(-6),
-                    vendedor: usuarioActual.nombre,
-                    cliente: cliente,
-                    telefono: telefono,
-                    objecion: objecion || 'Sin objeción',
-                    fecha: new Date().toLocaleDateString('es-ES'),
-                    hora: new Date().toLocaleTimeString('es-ES')
-                };
+        // PREPARAR DATOS PARA GOOGLE SHEETS
+        const registro = {
+            vendedor: usuarioActual.nombre,
+            usuario: usuarioActual.username,
+            cliente: cliente,
+            telefono: telefono,
+            objecion: objecion || 'Sin objeción',
+            fecha: new Date().toLocaleDateString('es-ES'),
+            hora: new Date().toLocaleTimeString('es-ES'),
+            timestamp: new Date().toISOString()
+        };
 
-                console.log('Registro guardado:', registro);
-                
-                showAlert('formAlert', '✅ Registro guardado exitosamente', 'success');
-                
-                // Limpiar formulario
-                document.getElementById('cliente').value = '';
-                document.getElementById('telefono').value = '';
-                document.getElementById('objecion').value = '';
-                
-                // Actualizar estadísticas
+        // TU URL DE GOOGLE APPS SCRIPT - REEMPLAZA CON LA TUYA
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzjnY26s0Eek00Sp1T-m5LfbIUnCixtMsQw5vhkagCtDQRpZQvP9AQ87SxiwvUlL7vf/exec';
+
+        // ENVIAR DATOS A GOOGLE SHEETS
+        const response = await fetch(WEB_APP_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(registro)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('formAlert', `✅ Registro guardado exitosamente! ID: ${result.id}`, 'success');
+            
+            // Limpiar formulario
+            document.getElementById('cliente').value = '';
+            document.getElementById('telefono').value = '';
+            document.getElementById('objecion').value = '';
+            
+            // Actualizar estadísticas después de 2 segundos
+            setTimeout(() => {
                 cargarEstadisticas();
-                
-            } catch (error) {
-                showAlert('formAlert', '❌ Error al guardar', 'error');
-            }
+            }, 2000);
+            
+        } else {
+            throw new Error(result.error || 'Error desconocido');
         }
+        
+    } catch (error) {
+        console.error('Error detallado:', error);
+        showAlert('formAlert', `❌ Error al guardar: ${error.message}`, 'error');
+    }
+}
+    // Guardar registro - CONEXIÓN CON GOOGLE SHEETS
+async function guardarRegistro() {
+    if (!usuarioActual) {
+        showAlert('formAlert', 'Debe iniciar sesión primero', 'error');
+        return;
+    }
+
+    const cliente = document.getElementById('cliente').value;
+    const telefono = document.getElementById('telefono').value;
+    const objecion = document.getElementById('objecion').value;
+
+    if (!cliente || !telefono) {
+        showAlert('formAlert', '❌ Cliente y Teléfono son obligatorios', 'error');
+        return;
+    }
+
+    try {
+        // MOSTRAR MENSAJE DE ESPERA
+        showAlert('formAlert', '⏳ Guardando en Google Sheets...', 'success');
+
+        // PREPARAR DATOS PARA GOOGLE SHEETS
+        const registro = {
+            vendedor: usuarioActual.nombre,
+            usuario: usuarioActual.username,
+            cliente: cliente,
+            telefono: telefono,
+            objecion: objecion || 'Sin objeción',
+            fecha: new Date().toLocaleDateString('es-ES'),
+            hora: new Date().toLocaleTimeString('es-ES'),
+            timestamp: new Date().toISOString()
+        };
+
+        // TU URL DE GOOGLE APPS SCRIPT - REEMPLAZA CON LA TUYA
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzjnY26s0Eek00Sp1T-m5LfbIUnCixtMsQw5vhkagCtDQRpZQvP9AQ87SxiwvUlL7vf/exec';
+
+        // ENVIAR DATOS A GOOGLE SHEETS
+        const response = await fetch(WEB_APP_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(registro)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('formAlert', `✅ Registro guardado exitosamente! ID: ${result.id}`, 'success');
+            
+            // Limpiar formulario
+            document.getElementById('cliente').value = '';
+            document.getElementById('telefono').value = '';
+            document.getElementById('objecion').value = '';
+            
+            // Actualizar estadísticas después de 2 segundos
+            setTimeout(() => {
+                cargarEstadisticas();
+            }, 2000);
+            
+        } else {
+            throw new Error(result.error || 'Error desconocido');
+        }
+        
+    } catch (error) {
+        console.error('Error detallado:', error);
+        showAlert('formAlert', `❌ Error al guardar: ${error.message}`, 'error');
+    }
+}
 
         // Cargar estadísticas
         async function cargarEstadisticas() {
@@ -381,4 +470,5 @@
         });
     </script>
 </body>
+
 </html>
