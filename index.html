@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Captura Web</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .form-container {
+            padding: 25px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: #27ae60;
+        }
+
+        .btn-success:hover {
+            background: #219a52;
+        }
+
+        .user-info {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .stats h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .demo-accounts {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- PANTALLA DE LOGIN -->
+        <div id="loginScreen" class="screen active">
+            <div class="header">
+                <h1>📊 Sistema de Captura</h1>
+                <p>Inicie sesión para continuar</p>
+            </div>
+            <div class="form-container">
+                <div id="loginAlert" class="alert"></div>
+                
+                <div class="form-group">
+                    <label for="username">Usuario:</label>
+                    <input type="text" id="username" placeholder="Ingrese su usuario">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" placeholder="Ingrese su contraseña">
+                </div>
+                
+                <button class="btn" onclick="login()">🔐 Iniciar Sesión</button>
+
+                <div class="demo-accounts">
+                    <p><strong>Usuarios de prueba:</strong></p>
+                    <p>admin / admin123</p>
+                    <p>vendedor1 / vendedor123</p>
+                    <p>vendedor2 / vendedor123</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA PRINCIPAL -->
+        <div id="mainScreen" class="screen">
+            <div class="header">
+                <h1>📝 Formulario de Captura</h1>
+                <p id="welcomeMessage">Bienvenido</p>
+            </div>
+            
+            <div class="form-container">
+                <div id="formAlert" class="alert"></div>
+                
+                <div class="user-info">
+                    Conectado como: <strong id="currentUser"></strong>
+                    <button class="btn" style="background: #e74c3c; margin-top: 10px;" onclick="logout()">🚪 Cerrar Sesión</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="cliente">Cliente:</label>
+                    <input type="text" id="cliente" placeholder="Nombre del cliente">
+                </div>
+                
+                <div class="form-group">
+                    <label for="telefono">Teléfono:</label>
+                    <input type="text" id="telefono" placeholder="Número de teléfono">
+                </div>
+                
+                <div class="form-group">
+                    <label for="objecion">Objeción:</label>
+                    <input type="text" id="objecion" placeholder="Tipo de objeción">
+                </div>
+                
+                <button class="btn btn-success" onclick="guardarRegistro()">💾 Guardar Registro</button>
+
+                <div class="stats">
+                    <h3>📈 Estadísticas</h3>
+                    <p>Total registros: <strong id="totalRegistros">0</strong></p>
+                    <p>Tus registros: <strong id="misRegistros">0</strong></p>
+                    <p>Último ID: <strong id="ultimoID">Ninguno</strong></p>
+                </div>
+
+                <button class="btn" onclick="verRegistros()" style="background: #95a5a6;">👁️ Ver Registros</button>
+                <button class="btn" onclick="actualizarEstadisticas()" style="background: #17a2b8;">🔄 Actualizar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Base de datos de usuarios
+        const usuarios = {
+            'admin': { password: 'admin123', nombre: 'Administrador' },
+            'vendedor1': { password: 'vendedor123', nombre: 'Juan Pérez' },
+            'vendedor2': { password: 'vendedor123', nombre: 'María García' },
+            'vendedor3': { password: 'vendedor123', nombre: 'Carlos López' }
+        };
+
+        let usuarioActual = null;
+
+        // Mostrar mensaje de alerta
+        function showAlert(elementId, message, type) {
+            const alert = document.getElementById(elementId);
+            alert.textContent = message;
+            alert.className = `alert alert-${type}`;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 4000);
+        }
+
+        // Cambiar entre pantallas
+        function showScreen(screenId) {
+            document.getElementById('loginScreen').classList.remove('active');
+            document.getElementById('mainScreen').classList.remove('active');
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Función de login
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showAlert('loginAlert', 'Por favor complete todos los campos', 'error');
+                return;
+            }
+
+            if (usuarios[username] && usuarios[username].password === password) {
+                usuarioActual = {
+                    username: username,
+                    nombre: usuarios[username].nombre
+                };
+                
+                // Mostrar pantalla principal
+                showScreen('mainScreen');
+                
+                // Actualizar información
+                document.getElementById('currentUser').textContent = usuarioActual.nombre;
+                document.getElementById('welcomeMessage').textContent = `Bienvenido, ${usuarioActual.nombre}`;
+                
+                // Cargar estadísticas
+                cargarEstadisticas();
+                
+                showAlert('formAlert', `✅ Bienvenido ${usuarioActual.nombre}`, 'success');
+                
+            } else {
+                showAlert('loginAlert', '❌ Usuario o contraseña incorrectos', 'error');
+            }
+        }
+
+        // Cerrar sesión
+        function logout() {
+            usuarioActual = null;
+            showScreen('loginScreen');
+            showAlert('loginAlert', '👋 Sesión cerrada correctamente', 'success');
+        }
+
+        // Guardar registro
+        async function guardarRegistro() {
+            if (!usuarioActual) {
+                showAlert('formAlert', 'Debe iniciar sesión primero', 'error');
+                return;
+            }
+
+            const cliente = document.getElementById('cliente').value;
+            const telefono = document.getElementById('telefono').value;
+            const objecion = document.getElementById('objecion').value;
+
+            if (!cliente || !telefono) {
+                showAlert('formAlert', '❌ Cliente y Teléfono son obligatorios', 'error');
+                return;
+            }
+
+            try {
+                // Simular guardado
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const registro = {
+                    id: 'REG' + Date.now().toString().slice(-6),
+                    vendedor: usuarioActual.nombre,
+                    cliente: cliente,
+                    telefono: telefono,
+                    objecion: objecion || 'Sin objeción',
+                    fecha: new Date().toLocaleDateString('es-ES'),
+                    hora: new Date().toLocaleTimeString('es-ES')
+                };
+
+                console.log('Registro guardado:', registro);
+                
+                showAlert('formAlert', '✅ Registro guardado exitosamente', 'success');
+                
+                // Limpiar formulario
+                document.getElementById('cliente').value = '';
+                document.getElementById('telefono').value = '';
+                document.getElementById('objecion').value = '';
+                
+                // Actualizar estadísticas
+                cargarEstadisticas();
+                
+            } catch (error) {
+                showAlert('formAlert', '❌ Error al guardar', 'error');
+            }
+        }
+
+        // Cargar estadísticas
+        async function cargarEstadisticas() {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Datos de ejemplo
+            document.getElementById('totalRegistros').textContent = Math.floor(Math.random() * 50) + 10;
+            document.getElementById('misRegistros').textContent = Math.floor(Math.random() * 15) + 1;
+            document.getElementById('ultimoID').textContent = 'REG' + Date.now().toString().slice(-6);
+        }
+
+        // Ver registros
+        function verRegistros() {
+            alert('📊 En una versión futura, esto mostrará todos los registros guardados.');
+        }
+
+        // Actualizar estadísticas
+        function actualizarEstadisticas() {
+            cargarEstadisticas();
+            showAlert('formAlert', '🔄 Estadísticas actualizadas', 'success');
+        }
+
+        // Permitir login con Enter
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+
+        // Mostrar pantalla de login al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            showScreen('loginScreen');
+        });
+    </script>
+</body>
+</html>
