@@ -431,7 +431,7 @@
                 let idGenerado = 'REG' + Date.now().toString().slice(-6);
 
                 try {
-                    const response = await fetch(https://script.google.com/macros/s/AKfycbzjnY26s0Eek00Sp1T-m5LfbIUnCixtMsQw5vhkagCtDQRpZQvP9AQ87SxiwvUlL7vf/exec, {
+                    const response = await fetch(WEB_APP_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -486,7 +486,7 @@
                 let estadisticas = null;
                 
                 try {
-                    const url = `${https://script.google.com/macros/s/AKfycbzjnY26s0Eek00Sp1T-m5LfbIUnCixtMsQw5vhkagCtDQRpZQvP9AQ87SxiwvUlL7vf/exec}?action=getEstadisticas&usuario=${usuarioActual.username}`;
+                    const url = `${WEB_APP_URL}?action=getEstadisticas&usuario=${usuarioActual.username}`;
                     const response = await fetch(url);
                     
                     if (response.ok) {
@@ -580,7 +580,7 @@
         async function probarConexion() {
             try {
                 showAlert('formAlert', '🔍 Probando conexión...', 'success');
-                const response = await fetch(https://script.google.com/macros/s/AKfycbzjnY26s0Eek00Sp1T-m5LfbIUnCixtMsQw5vhkagCtDQRpZQvP9AQ87SxiwvUlL7vf/exec + '?action=test');
+                const response = await fetch(WEB_APP_URL + '?action=test');
                 const result = await response.json();
                 console.log('🔌 Test conexión:', result);
                 showAlert('formAlert', '✅ Conexión exitosa con Google Apps Script', 'success');
